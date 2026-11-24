@@ -16,7 +16,13 @@ EMOJI = "\U0001F3DD\uFE0F"
 def main() -> None:
     out_dir = Path(os.environ.get("MAKEFUN_OUTPUT_DIR", "/output"))
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "entry.txt").write_text(EMOJI, encoding="utf-8")
+    target = out_dir / "entry.txt"
+    target.write_text(EMOJI, encoding="utf-8")
+    # Self-check: the gate requires UTF-8 text of 1 to 8 characters,
+    # not only white space. Fail loudly instead of shipping a bad file.
+    written = target.read_text(encoding="utf-8")
+    if not (1 <= len(written) <= 8 and written.strip()):
+        raise SystemExit("entry.txt fails the gate: not 1-8 non-blank characters")
 
 
 if __name__ == "__main__":
